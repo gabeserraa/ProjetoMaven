@@ -12,6 +12,6 @@ public record ClienteRequest(
     @Email(message = "E-mail inválido")
     String email,
 
-    @Size(max = 20, message = "Telefone deve ter no máximo caracteres")
+    @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
     String telefone
 ) {}
