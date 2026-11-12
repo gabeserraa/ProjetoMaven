@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${cliente.nome})}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('clientes')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <a class="crumb" th:href="@{/app/clientes}"><svg th:replace="~{fragments/icones :: back}"></svg> Clientes</a>
+          <h1 th:text="${cliente.nome}">Nome</h1>
+          <p th:text="${#strings.isEmpty(cliente.telefone)} ? ${cliente.email} : |${cliente.email} · ${cliente.telefone}|">email</p>
+        </div>
+        <div class="head-actions">
+          <a class="btn ghost" th:href="@{/app/clientes/{id}/editar(id=${cliente.id})}"><svg th:replace="~{fragments/icones :: edit}"></svg> Editar</a>
+          <form class="inline" th:action="@{/app/clientes/{id}(id=${cliente.id})}" th:method="delete" data-confirm
+                th:data-titulo="|Excluir ${cliente.nome}?|" data-texto="O cliente será removido permanentemente. Clientes com chamados não podem ser excluídos.">
+            <button class="btn danger-ghost" type="submit"><svg th:replace="~{fragments/icones :: trash}"></svg> Excluir</button>
+          </form>
+          <a class="btn primary" th:href="@{/app/chamados/novo(clienteId=${cliente.id})}"><svg th:replace="~{fragments/icones :: plus}"></svg> Abrir chamado</a>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="panel-head"><h2>Chamados deste cliente</h2></div>
+        <th:block th:unless="${#lists.isEmpty(chamados)}"><div th:replace="~{fragments/ui :: tabelaChamados(${chamados}, false)}"></div></th:block>
+        <div class="empty" th:if="${#lists.isEmpty(chamados)}">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: ticket}"></svg></div>
+          <h3>Nenhum chamado deste cliente</h3>
+          <p>Quando este cliente relatar um problema, abra o chamado por aqui.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

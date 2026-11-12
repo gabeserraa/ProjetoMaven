@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${id == null} ? 'Novo comentário' : 'Editar comentário')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('comentarios')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page form-page">
+      <a class="crumb" th:href="@{/app/comentarios}"><svg th:replace="~{fragments/icones :: back}"></svg> Comentários</a>
+      <h1 class="form-title" th:text="${id == null} ? 'Novo comentário' : 'Editar comentário'">Novo comentário</h1>
+
+      <form class="panel form-card" th:object="${comentario}" novalidate
+            th:action="${id == null} ? @{/app/comentarios} : @{/app/comentarios/{id}(id=${id})}"
+            th:method="${id == null} ? 'post' : 'put'">
+        <div class="form-error" role="alert" th:if="${#fields.hasGlobalErrors()}" th:text="${#fields.globalErrors()[0]}">Erro</div>
+        <div class="form-error" role="alert" th:if="${#fields.hasErrors('*') and !#fields.hasGlobalErrors()}">Corrija os campos destacados.</div>
+
+        <div class="field" th:if="${id == null}">
+          <label for="chamadoId">Chamado</label>
+          <select id="chamadoId" name="chamadoId">
+            <option value="">Selecione o chamado</option>
+            <option th:each="c : ${chamados}" th:value="${c.id}"
+                    th:selected="${param.chamadoId != null and param.chamadoId[0] == '' + c.id}"
+                    th:text="|#${c.id} · ${c.titulo}|">Chamado</option>
+          </select>
+        </div>
+        <div class="field" th:if="${id != null}">
+          <span class="label">Chamado</span>
+          <a class="ref-box" th:href="@{/app/chamados/{id}(id=${chamadoId})}" th:text="|Chamado #${chamadoId}|">Chamado #1</a>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('autor')} ? invalid">
+          <label for="autor">Autor</label>
+          <input th:field="*{autor}" maxlength="100" placeholder="Quem está escrevendo">
+          <span class="err" th:errors="*{autor}"></span>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('texto')} ? invalid">
+          <label for="texto">Comentário</label>
+          <textarea th:field="*{texto}" maxlength="1000" placeholder="Atualização, pergunta ou solução" data-counter></textarea>
+          <span class="err" th:errors="*{texto}"></span>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn ghost" th:href="@{/app/comentarios}">Cancelar</a>
+          <button type="submit" class="btn primary" th:text="${id == null} ? 'Publicar comentário' : 'Salvar alterações'">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

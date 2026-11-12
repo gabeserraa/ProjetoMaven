@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Painel')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('painel')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Painel</h1><p>Visão geral dos chamados de suporte.</p></div>
+        <a class="btn primary" th:href="@{/app/chamados/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Abrir chamado</a>
+      </div>
+
+      <nav class="flow" aria-label="Chamados por status">
+        <a th:each="e : ${porStatus}" th:class="${e.key}" th:href="@{/app/chamados(status=${e.key})}">
+          <span class="flow-label" th:text="#{${'status.' + e.key}}">Aberto</span>
+          <strong th:text="${e.value}">0</strong>
+          <small th:text="#{${'status.dica.' + e.key}}">Dica</small>
+        </a>
+      </nav>
+
+      <div class="dash-grid equal">
+        <section class="panel">
+          <div class="panel-head"><h2>Precisam de atenção</h2><a th:href="@{/app/chamados}">Ver todos</a></div>
+          <ul class="list" th:unless="${#lists.isEmpty(atencao)}">
+            <li th:each="c : ${atencao}"><a th:href="@{/app/chamados/{id}(id=${c.id})}">
+              <span th:replace="~{fragments/ui :: prio(${c.prioridade})}"></span>
+              <div class="grow">
+                <div class="cell-title" th:text="|#${c.id} · ${c.titulo}|">Título</div>
+                <div class="cell-sub"><th:block th:text="${c.cliente.nome}"></th:block><th:block th:if="${c.tecnico == null}"> · <strong>sem técnico</strong></th:block></div>
+              </div>
+              <span th:replace="~{fragments/ui :: status(${c.status})}"></span>
+            </a></li>
+          </ul>
+          <div class="empty compact" th:if="${#lists.isEmpty(atencao)}">
+            <div class="empty-icon"><svg th:replace="~{fragments/icones :: check}"></svg></div>
+            <h3>Tudo sob controle</h3>
+            <p>Nenhum chamado urgente ou sem técnico em andamento.</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><h2>Abertos recentemente</h2></div>
+          <ul class="list" th:unless="${#lists.isEmpty(recentes)}">
+            <li th:each="c : ${recentes}"><a th:href="@{/app/chamados/{id}(id=${c.id})}">
+              <div class="grow">
+                <div class="cell-title" th:text="|#${c.id} · ${c.titulo}|">Título</div>
+                <div class="cell-sub" th:text="|${c.cliente.nome} · ${c.categoria.nome}|">Sub</div>
+              </div>
+              <span th:replace="~{fragments/ui :: status(${c.status})}"></span>
+            </a></li>
+          </ul>
+          <div class="empty compact" th:if="${#lists.isEmpty(recentes)}">
+            <div class="empty-icon"><svg th:replace="~{fragments/icones :: ticket}"></svg></div>
+            <h3>Nenhum chamado ainda</h3>
+            <p>Os chamados abertos aparecem aqui.</p>
+            <a class="btn primary" th:href="@{/app/chamados/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Abrir chamado</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

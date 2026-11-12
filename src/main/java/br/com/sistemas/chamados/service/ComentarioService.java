@@ -2,6 +2,7 @@ package br.com.sistemas.chamados.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,12 @@ public class ComentarioService {
     public List<ComentarioResponse> listarPorChamado(Long chamadoId) {
         chamadoService.buscarEntity(chamadoId);
         return repository.findByChamadoIdOrderByDataAsc(chamadoId).stream()
+            .map(ComentarioResponse::de).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComentarioResponse> listarTodos() {
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "data")).stream()
             .map(ComentarioResponse::de).toList();
     }
 

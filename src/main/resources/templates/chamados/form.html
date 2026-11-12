@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${id == null} ? 'Abrir chamado' : 'Editar chamado')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('chamados')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page form-page">
+      <a class="crumb" th:href="${id == null} ? @{/app/chamados} : @{/app/chamados/{id}(id=${id})}"><svg th:replace="~{fragments/icones :: back}"></svg> <th:block th:text="${id == null} ? 'Chamados' : |Chamado #${id}|">Chamados</th:block></a>
+      <h1 class="form-title" th:text="${id == null} ? 'Abrir chamado' : |Editar chamado #${id}|">Abrir chamado</h1>
+
+      <section class="panel form-card" th:if="${#lists.isEmpty(clientes) or #lists.isEmpty(categorias)}">
+        <div class="empty compact">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: ticket}"></svg></div>
+          <h3>Faltam cadastros</h3>
+          <p>Todo chamado precisa de um cliente e de uma categoria. Cadastre o que falta primeiro.</p>
+          <div class="head-actions center">
+            <a class="btn primary" th:if="${#lists.isEmpty(clientes)}" th:href="@{/app/clientes/novo}">Cadastrar cliente</a>
+            <a class="btn primary" th:if="${#lists.isEmpty(categorias)}" th:href="@{/app/categorias/novo}">Cadastrar categoria</a>
+          </div>
+        </div>
+      </section>
+
+      <form class="panel form-card" th:object="${chamado}" novalidate
+            th:unless="${#lists.isEmpty(clientes) or #lists.isEmpty(categorias)}"
+            th:action="${id == null} ? @{/app/chamados} : @{/app/chamados/{id}(id=${id})}"
+            th:method="${id == null} ? 'post' : 'put'">
+        <div class="form-error" role="alert" th:if="${#fields.hasGlobalErrors()}" th:each="e : ${#fields.globalErrors()}" th:text="${e}">Erro</div>
+        <div class="form-error" role="alert" th:if="${#fields.hasErrors('*') and !#fields.hasGlobalErrors()}">Corrija os campos destacados.</div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('titulo')} ? invalid">
+          <label for="titulo">Título</label>
+          <input th:field="*{titulo}" maxlength="120" placeholder="Resuma o problema em uma frase">
+          <span class="err" th:errors="*{titulo}"></span>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('descricao')} ? invalid">
+          <label for="descricao">Descrição</label>
+          <textarea th:field="*{descricao}" maxlength="1000" placeholder="O que aconteceu, desde quando e o que já foi tentado" data-counter></textarea>
+          <span class="err" th:errors="*{descricao}"></span>
+        </div>
+        <fieldset class="field" th:classappend="${#fields.hasErrors('prioridade')} ? invalid">
+          <legend>Prioridade</legend>
+          <div class="seg">
+            <th:block th:each="p : ${prioridades}">
+              <input type="radio" th:field="*{prioridade}" th:value="${p}">
+              <label th:for="${#ids.prev('prioridade')}"><span th:replace="~{fragments/ui :: prio(${p})}"></span></label>
+            </th:block>
+          </div>
+          <span class="err" th:errors="*{prioridade}"></span>
+        </fieldset>
+        <div class="field" th:classappend="${#fields.hasErrors('clienteId')} ? invalid">
+          <label for="clienteId">Cliente</label>
+          <select th:field="*{clienteId}">
+            <option value="">Selecione o cliente</option>
+            <option th:each="c : ${clientes}" th:value="${c.id}" th:text="|${c.nome} — ${c.email}|">Cliente</option>
+          </select>
+          <span class="err" th:errors="*{clienteId}"></span>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('categoriaId')} ? invalid">
+          <label for="categoriaId">Categoria</label>
+          <select th:field="*{categoriaId}">
+            <option value="">Selecione a categoria</option>
+            <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}">Categoria</option>
+          </select>
+          <span class="err" th:errors="*{categoriaId}"></span>
+        </div>
+        <div class="field">
+          <label for="tecnicoId">Técnico responsável <span class="opt">(opcional)</span></label>
+          <select th:field="*{tecnicoId}">
+            <option value="">Sem técnico por enquanto</option>
+            <option th:each="t : ${tecnicos}" th:value="${t.id}" th:text="|${t.nome} (#{${'perfil.' + t.perfil}})|">Técnico</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn ghost" th:href="${id == null} ? @{/app/chamados} : @{/app/chamados/{id}(id=${id})}">Cancelar</a>
+          <button type="submit" class="btn primary" th:text="${id == null} ? 'Abrir chamado' : 'Salvar alterações'">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

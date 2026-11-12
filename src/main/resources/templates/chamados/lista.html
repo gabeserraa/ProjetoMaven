@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chamados')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('chamados')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Chamados</h1><p>Acompanhe e atualize os chamados de suporte.</p></div>
+        <a class="btn primary" th:href="@{/app/chamados/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Abrir chamado</a>
+      </div>
+      <section class="panel">
+        <form class="toolbar" th:action="@{/app/chamados}" method="get" aria-label="Filtro">
+          <select name="status" aria-label="Filtrar por status" data-autosubmit>
+            <option value="">Todos os status</option>
+            <option th:each="s : ${todosStatus}" th:value="${s}" th:selected="${s == status}" th:text="#{${'status.' + s}}">Status</option>
+          </select>
+          <noscript><button class="btn ghost sm" type="submit">Filtrar</button></noscript>
+          <a class="btn ghost sm" th:if="${status != null}" th:href="@{/app/chamados}">Limpar filtro</a>
+        </form>
+
+        <th:block th:unless="${pagina.empty}">
+          <div th:replace="~{fragments/ui :: tabelaChamados(${pagina.content}, true)}"></div>
+          <div class="pager">
+            <span class="num" th:text="|Página ${pagina.number + 1} de ${pagina.totalPages} · ${pagina.totalElements} chamados|">Página 1 de 1</span>
+            <div class="pager-btns">
+              <a class="btn ghost sm" th:classappend="${pagina.first} ? disabled"
+                 th:href="${status == null} ? @{/app/chamados(page=${pagina.number - 1})} : @{/app/chamados(page=${pagina.number - 1},status=${status})}">Anterior</a>
+              <a class="btn ghost sm" th:classappend="${pagina.last} ? disabled"
+                 th:href="${status == null} ? @{/app/chamados(page=${pagina.number + 1})} : @{/app/chamados(page=${pagina.number + 1},status=${status})}">Próxima</a>
+            </div>
+          </div>
+        </th:block>
+
+        <div class="empty" th:if="${pagina.empty}">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: ticket}"></svg></div>
+          <h3 th:text="${status == null} ? 'Nenhum chamado aberto ainda' : 'Nenhum chamado com esse status'">Nenhum chamado</h3>
+          <p>Quando um cliente relatar um problema, registre aqui para acompanhar até a solução.</p>
+          <a class="btn primary" th:href="@{/app/chamados/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Abrir chamado</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

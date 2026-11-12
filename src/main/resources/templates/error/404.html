@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Não encontrado')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <section class="panel offline">
+        <div class="empty">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: search}"></svg></div>
+          <h3>Não encontrado</h3>
+          <p th:text="${mensagem != null} ? ${mensagem} : 'O endereço acessado não existe.'">O endereço acessado não existe.</p>
+          <a class="btn primary" th:href="@{/}">Voltar ao painel</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>
