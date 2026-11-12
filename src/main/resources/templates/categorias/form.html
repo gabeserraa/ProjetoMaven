@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${id == null} ? 'Nova categoria' : 'Editar categoria')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('categorias')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page form-page">
+      <a class="crumb" th:href="@{/app/categorias}"><svg th:replace="~{fragments/icones :: back}"></svg> Categorias</a>
+      <h1 class="form-title" th:text="${id == null} ? 'Nova categoria' : 'Editar categoria'">Nova categoria</h1>
+
+      <form class="panel form-card" th:object="${categoria}" novalidate
+            th:action="${id == null} ? @{/app/categorias} : @{/app/categorias/{id}(id=${id})}"
+            th:method="${id == null} ? 'post' : 'put'">
+        <div class="form-error" role="alert" th:if="${#fields.hasGlobalErrors()}" th:text="${#fields.globalErrors()[0]}">Erro</div>
+        <div class="form-error" role="alert" th:if="${#fields.hasErrors('*') and !#fields.hasGlobalErrors()}">Corrija os campos destacados.</div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('nome')} ? invalid">
+          <label for="nome">Nome</label>
+          <input th:field="*{nome}" maxlength="60" placeholder="Ex.: Rede e internet">
+          <span class="hint">Precisa ser único.</span>
+          <span class="err" th:errors="*{nome}"></span>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('descricao')} ? invalid">
+          <label for="descricao">Descrição <span class="opt">(opcional)</span></label>
+          <textarea th:field="*{descricao}" maxlength="255" placeholder="Que tipo de problema entra nesta categoria?" data-counter></textarea>
+          <span class="err" th:errors="*{descricao}"></span>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn ghost" th:href="@{/app/categorias}">Cancelar</a>
+          <button type="submit" class="btn primary" th:text="${id == null} ? 'Cadastrar categoria' : 'Salvar alterações'">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

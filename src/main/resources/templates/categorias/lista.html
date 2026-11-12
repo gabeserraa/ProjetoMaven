@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Categorias')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('categorias')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Categorias</h1><p>Tipos de problema usados para classificar os chamados.</p></div>
+        <a class="btn primary" th:href="@{/app/categorias/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Nova categoria</a>
+      </div>
+      <section class="panel">
+        <div class="table-wrap" th:unless="${#lists.isEmpty(categorias)}">
+          <table>
+            <thead><tr><th>Categoria</th><th class="hide-sm">Descrição</th><th><span class="sr-only">Ações</span></th></tr></thead>
+            <tbody>
+              <tr th:each="c : ${categorias}" class="clickable" th:data-href="@{/app/categorias/{id}/editar(id=${c.id})}">
+                <td><span class="person"><span class="avatar avatar-tag"><svg th:replace="~{fragments/icones :: tag}"></svg></span>
+                  <a class="cell-title row-link" th:href="@{/app/categorias/{id}/editar(id=${c.id})}" th:text="${c.nome}">Nome</a></span></td>
+                <td class="hide-sm"><div class="clamp muted" th:text="${#strings.isEmpty(c.descricao)} ? '—' : ${c.descricao}">—</div></td>
+                <td class="actions">
+                  <a class="icon-btn" th:href="@{/app/categorias/{id}/editar(id=${c.id})}" aria-label="Editar" title="Editar"><svg th:replace="~{fragments/icones :: edit}"></svg></a>
+                  <form th:replace="~{fragments/ui :: excluir(@{/app/categorias/{id}(id=${c.id})}, |Excluir ${c.nome}?|, 'A categoria será removida permanentemente. Categorias com chamados não podem ser excluídas.')}"></form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="empty" th:if="${#lists.isEmpty(categorias)}">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: tag}"></svg></div>
+          <h3>Nenhuma categoria cadastrada</h3>
+          <p>Categorias organizam os chamados por tipo de problema, como rede, hardware ou acesso.</p>
+          <a class="btn primary" th:href="@{/app/categorias/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Nova categoria</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

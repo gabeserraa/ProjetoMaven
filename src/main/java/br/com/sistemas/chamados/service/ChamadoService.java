@@ -121,7 +121,7 @@ public class ChamadoService {
                 "Chamado " + id + " não encontrado"));
     }
 
-    private Set<StatusChamado> transicoesPermitidas(StatusChamado atual) {
+    public Set<StatusChamado> transicoesPermitidas(StatusChamado atual) {
         return switch (atual) {
             case ABERTO -> Set.of(StatusChamado.EM_ATENDIMENTO, StatusChamado.FECHADO);
             case EM_ATENDIMENTO -> Set.of(StatusChamado.AGUARDANDO_CLIENTE, StatusChamado.FECHADO);

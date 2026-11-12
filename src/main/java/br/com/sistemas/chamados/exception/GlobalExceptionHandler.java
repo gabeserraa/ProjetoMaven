@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-@RestControllerAdvice
+/**
+ * Erros em JSON apenas para a API REST. As telas (pacote web) têm o próprio tratamento.
+ */
+@RestControllerAdvice(basePackages = "br.com.sistemas.chamados.controller")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(RecursoNaoEncontradoException.class)

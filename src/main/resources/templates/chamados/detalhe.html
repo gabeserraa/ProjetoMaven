@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(|Chamado #${chamado.id}|)}"></head>
+<body th:with="fechado=${chamado.status.name() == 'FECHADO'}">
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('chamados')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <a class="crumb" th:href="@{/app/chamados}"><svg th:replace="~{fragments/icones :: back}"></svg> Chamados</a>
+        <div class="head-actions">
+          <a class="btn ghost" th:unless="${fechado}" th:href="@{/app/chamados/{id}/editar(id=${chamado.id})}"><svg th:replace="~{fragments/icones :: edit}"></svg> Editar</a>
+          <span class="btn ghost disabled" th:if="${fechado}" title="Chamados fechados não podem ser editados"><svg th:replace="~{fragments/icones :: edit}"></svg> Editar</span>
+          <form class="inline" th:action="@{/app/chamados/{id}(id=${chamado.id})}" th:method="delete" data-confirm
+                th:data-titulo="|Excluir chamado #${chamado.id}?|"
+                th:data-texto="${#lists.isEmpty(chamado.comentarios)} ? 'O chamado será removido permanentemente.' : 'Este chamado tem comentários e por isso a exclusão será recusada. Exclua os comentários antes.'">
+            <button class="btn danger-ghost" type="submit"><svg th:replace="~{fragments/icones :: trash}"></svg> Excluir</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="ticket-grid">
+        <div class="stack">
+          <article class="panel">
+            <header class="ticket-head">
+              <span class="ticket-id" th:text="|Chamado #${chamado.id}|">Chamado #1</span>
+              <h1 th:text="${chamado.titulo}">Título</h1>
+              <div class="ticket-meta">
+                <span th:replace="~{fragments/ui :: status(${chamado.status})}"></span>
+                <span th:replace="~{fragments/ui :: prio(${chamado.prioridade})}"></span>
+                <span class="tag" th:text="${chamado.categoria.nome}">Categoria</span>
+              </div>
+            </header>
+            <div class="ticket-desc" th:text="${chamado.descricao}">Descrição</div>
+            <div class="closed-note" th:if="${fechado}"><svg th:replace="~{fragments/icones :: lock}"></svg>
+              <span th:text="|Fechado em ${#temporals.format(chamado.dataFechamento, 'dd/MM/yyyy HH:mm')}. Chamados fechados não aceitam mais edição nem mudança de status.|"></span></div>
+          </article>
+
+          <section class="panel" id="comentarios">
+            <div class="panel-head"><h2>Comentários <span class="muted num" th:text="${#lists.size(chamado.comentarios)}">0</span></h2></div>
+            <ol class="thread" th:unless="${#lists.isEmpty(chamado.comentarios)}">
+              <li class="comment" th:each="c : ${chamado.comentarios}">
+                <span th:replace="~{fragments/ui :: avatar(${c.autor})}"></span>
+                <div>
+                  <div class="comment-head">
+                    <strong th:text="${c.autor}">Autor</strong>
+                    <time th:datetime="${c.data}" th:text="${#temporals.format(c.data, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</time>
+                    <span class="comment-actions">
+                      <a class="icon-btn" th:href="@{/app/comentarios/{id}/editar(id=${c.id})}" aria-label="Editar comentário" title="Editar"><svg th:replace="~{fragments/icones :: edit}"></svg></a>
+                      <form class="inline" th:action="@{/app/comentarios/{id}(id=${c.id})}" th:method="delete" data-confirm
+                            data-titulo="Excluir comentário?" data-texto="O comentário será removido permanentemente do chamado.">
+                        <button type="submit" class="icon-btn danger" aria-label="Excluir comentário" title="Excluir"><svg th:replace="~{fragments/icones :: trash}"></svg></button>
+                      </form>
+                    </span>
+                  </div>
+                  <div class="comment-text" th:text="${c.texto}">Texto</div>
+                </div>
+              </li>
+            </ol>
+            <p class="muted thread-empty" th:if="${#lists.isEmpty(chamado.comentarios)}">Nenhum comentário ainda. Registre aqui as atualizações do atendimento.</p>
+
+            <form class="composer" th:object="${comentario}" th:action="@{/app/chamados/{id}/comentarios(id=${chamado.id})}" method="post" novalidate>
+              <div class="field" th:classappend="${#fields.hasErrors('texto')} ? invalid">
+                <label for="texto" class="sr-only">Novo comentário</label>
+                <textarea th:field="*{texto}" maxlength="1000" placeholder="Escreva uma atualização, pergunta ou solução…" rows="3"></textarea>
+                <span class="err" th:errors="*{texto}"></span>
+              </div>
+              <div class="composer-row">
+                <div class="field" th:classappend="${#fields.hasErrors('autor')} ? invalid">
+                  <label for="autor" class="sr-only">Autor</label>
+                  <input th:field="*{autor}" maxlength="100" placeholder="Seu nome">
+                  <span class="err" th:errors="*{autor}"></span>
+                </div>
+                <button class="btn primary" type="submit"><svg th:replace="~{fragments/icones :: chat}"></svg> Publicar comentário</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="panel">
+            <div class="panel-head"><h2>Andamento</h2></div>
+            <ol class="stepper">
+              <li th:each="s : ${todosStatus}"
+                  th:class="${s == chamado.status} ? |current ${s}| : (${s.name() == 'ABERTO'} ? |done ${s}| : |todo ${s}|)">
+                <span class="dot"></span>
+                <div>
+                  <div class="label" th:text="#{${'status.' + s}}">Status</div>
+                  <div class="sub" th:switch="${s.name()}">
+                    <th:block th:case="'ABERTO'" th:text="${#temporals.format(chamado.dataAbertura, 'dd/MM/yyyy HH:mm')}"></th:block>
+                    <th:block th:case="'FECHADO'" th:text="${chamado.dataFechamento != null} ? ${#temporals.format(chamado.dataFechamento, 'dd/MM/yyyy HH:mm')} : #{status.dica.FECHADO}"></th:block>
+                    <th:block th:case="*" th:text="${s == chamado.status} ? 'Status atual' : #{${'status.dica.' + s}}"></th:block>
+                  </div>
+                </div>
+              </li>
+            </ol>
+            <div class="transitions" th:unless="${#lists.isEmpty(transicoes)}">
+              <form th:each="t : ${todosStatus}" th:if="${transicoes.contains(t)}" th:action="@{/app/chamados/{id}/status(id=${chamado.id})}" method="post"
+                    th:data-confirm="${t.name() == 'FECHADO'} ? 'sim'"
+                    th:data-titulo="|Fechar chamado #${chamado.id}?|"
+                    data-texto="Depois de fechado, o chamado não poderá mais ser editado nem mudar de status."
+                    data-ok="Fechar chamado" data-tipo="primary">
+                <input type="hidden" name="status" th:value="${t}">
+                <button type="submit" class="btn ghost" th:classappend="${t}">
+                  <span class="sw"></span>
+                  <th:block th:text="${t.name() == 'EM_ATENDIMENTO' and chamado.status.name() == 'AGUARDANDO_CLIENTE'} ? #{acao.EM_ATENDIMENTO.retomar} : #{${'acao.' + t}}">Ação</th:block>
+                </button>
+              </form>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>Detalhes</h2></div>
+            <dl class="facts">
+              <div><dt>Cliente</dt><dd><a th:href="@{/app/clientes/{id}(id=${chamado.cliente.id})}" th:text="${chamado.cliente.nome}">Cliente</a></dd></div>
+              <div><dt>Categoria</dt><dd th:text="${chamado.categoria.nome}">Categoria</dd></div>
+              <div><dt>Técnico responsável</dt><dd><th:block th:replace="~{fragments/ui :: tecnico(${chamado.tecnico})}"></th:block></dd></div>
+              <div><dt>Aberto em</dt><dd th:text="${#temporals.format(chamado.dataAbertura, 'dd/MM/yyyy HH:mm')}">data</dd></div>
+              <div th:if="${fechado}"><dt>Fechado em</dt><dd th:text="${#temporals.format(chamado.dataFechamento, 'dd/MM/yyyy HH:mm')}">data</dd></div>
+            </dl>
+            <form class="assign" th:if="${!fechado and !#lists.isEmpty(tecnicos)}" th:action="@{/app/chamados/{id}/atribuir(id=${chamado.id})}" method="post">
+              <select name="tecnicoId" aria-label="Técnico">
+                <option th:each="t : ${tecnicos}" th:value="${t.id}" th:selected="${chamado.tecnico != null and chamado.tecnico.id == t.id}" th:text="${t.nome}">Técnico</option>
+              </select>
+              <button class="btn ghost" type="submit" th:text="${chamado.tecnico == null} ? 'Atribuir' : 'Reatribuir'">Atribuir</button>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Técnicos')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('tecnicos')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Técnicos</h1><p>Equipe que atende os chamados. Administradores também podem receber atribuições.</p></div>
+        <a class="btn primary" th:href="@{/app/tecnicos/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Novo técnico</a>
+      </div>
+      <section class="panel">
+        <div class="table-wrap" th:unless="${#lists.isEmpty(tecnicos)}">
+          <table>
+            <thead><tr><th>Técnico</th><th>Perfil</th><th><span class="sr-only">Ações</span></th></tr></thead>
+            <tbody>
+              <tr th:each="t : ${tecnicos}" class="clickable" th:data-href="@{/app/tecnicos/{id}/editar(id=${t.id})}">
+                <td><span class="person"><span th:replace="~{fragments/ui :: avatar(${t.nome})}"></span>
+                  <span><a class="cell-title row-link" th:href="@{/app/tecnicos/{id}/editar(id=${t.id})}" th:text="${t.nome}">Nome</a><div class="cell-sub" th:text="${t.email}">email</div></span></span></td>
+                <td><span class="tag" th:classappend="${t.perfil}" th:text="#{${'perfil.' + t.perfil}}">Técnico</span></td>
+                <td class="actions">
+                  <a class="icon-btn" th:href="@{/app/tecnicos/{id}/editar(id=${t.id})}" aria-label="Editar" title="Editar"><svg th:replace="~{fragments/icones :: edit}"></svg></a>
+                  <form th:replace="~{fragments/ui :: excluir(@{/app/tecnicos/{id}(id=${t.id})}, |Excluir ${t.nome}?|, 'O técnico será removido permanentemente. Técnicos com chamados não podem ser excluídos.')}"></form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="empty" th:if="${#lists.isEmpty(tecnicos)}">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: wrench}"></svg></div>
+          <h3>Nenhum técnico cadastrado</h3>
+          <p>Cadastre a equipe de suporte para atribuir chamados a cada pessoa.</p>
+          <a class="btn primary" th:href="@{/app/tecnicos/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Novo técnico</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

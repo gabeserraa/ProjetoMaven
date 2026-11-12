@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Comentários')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('comentarios')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Comentários</h1><p>Todas as atualizações registradas nos chamados, das mais novas para as mais antigas.</p></div>
+        <a class="btn primary" th:href="@{/app/comentarios/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Novo comentário</a>
+      </div>
+      <section class="panel">
+        <ol class="thread thread-list" th:unless="${#lists.isEmpty(comentarios)}">
+          <li class="comment" th:each="c : ${comentarios}">
+            <span th:replace="~{fragments/ui :: avatar(${c.autor})}"></span>
+            <div>
+              <div class="comment-head">
+                <strong th:text="${c.autor}">Autor</strong>
+                <time th:datetime="${c.data}" th:text="${#temporals.format(c.data, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</time>
+                <a class="ref" th:href="@{/app/chamados/{id}(id=${c.chamadoId})}" th:text="|Chamado #${c.chamadoId}|">Chamado #1</a>
+                <span class="comment-actions">
+                  <a class="icon-btn" th:href="@{/app/comentarios/{id}/editar(id=${c.id})}" aria-label="Editar comentário" title="Editar"><svg th:replace="~{fragments/icones :: edit}"></svg></a>
+                  <form th:replace="~{fragments/ui :: excluir(@{/app/comentarios/{id}(id=${c.id})}, 'Excluir comentário?', 'O comentário será removido permanentemente do chamado.')}"></form>
+                </span>
+              </div>
+              <div class="comment-text" th:text="${c.texto}">Texto</div>
+            </div>
+          </li>
+        </ol>
+        <div class="empty" th:if="${#lists.isEmpty(comentarios)}">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: chat}"></svg></div>
+          <h3>Nenhum comentário ainda</h3>
+          <p>Comentários registram o andamento de cada chamado: o que foi feito, o que falta e as respostas do cliente.</p>
+          <a class="btn primary" th:href="@{/app/comentarios/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Novo comentário</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

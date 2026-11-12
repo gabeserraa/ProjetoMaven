@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Clientes')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('clientes')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Clientes</h1><p>Pessoas e empresas que abrem chamados.</p></div>
+        <a class="btn primary" th:href="@{/app/clientes/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Novo cliente</a>
+      </div>
+      <section class="panel">
+        <div class="table-wrap" th:unless="${#lists.isEmpty(clientes)}">
+          <table>
+            <thead><tr><th>Cliente</th><th class="hide-sm">Telefone</th><th><span class="sr-only">Ações</span></th></tr></thead>
+            <tbody>
+              <tr th:each="c : ${clientes}" class="clickable" th:data-href="@{/app/clientes/{id}(id=${c.id})}">
+                <td><span class="person"><span th:replace="~{fragments/ui :: avatar(${c.nome})}"></span>
+                  <span><a class="cell-title row-link" th:href="@{/app/clientes/{id}(id=${c.id})}" th:text="${c.nome}">Nome</a><div class="cell-sub" th:text="${c.email}">email</div></span></span></td>
+                <td class="hide-sm" th:text="${#strings.isEmpty(c.telefone)} ? '—' : ${c.telefone}">—</td>
+                <td class="actions">
+                  <a class="icon-btn" th:href="@{/app/clientes/{id}/editar(id=${c.id})}" aria-label="Editar" title="Editar"><svg th:replace="~{fragments/icones :: edit}"></svg></a>
+                  <form th:replace="~{fragments/ui :: excluir(@{/app/clientes/{id}(id=${c.id})}, |Excluir ${c.nome}?|, 'O cliente será removido permanentemente. Clientes com chamados não podem ser excluídos.')}"></form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="empty" th:if="${#lists.isEmpty(clientes)}">
+          <div class="empty-icon"><svg th:replace="~{fragments/icones :: user}"></svg></div>
+          <h3>Nenhum cliente cadastrado</h3>
+          <p>Cadastre quem pode abrir chamados. Cada cliente precisa de um e-mail único.</p>
+          <a class="btn primary" th:href="@{/app/clientes/novo}"><svg th:replace="~{fragments/icones :: plus}"></svg> Novo cliente</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

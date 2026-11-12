@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${id == null} ? 'Novo técnico' : 'Editar técnico')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('tecnicos')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page form-page">
+      <a class="crumb" th:href="@{/app/tecnicos}"><svg th:replace="~{fragments/icones :: back}"></svg> Técnicos</a>
+      <h1 class="form-title" th:text="${id == null} ? 'Novo técnico' : 'Editar técnico'">Novo técnico</h1>
+
+      <form class="panel form-card" th:object="${tecnico}" novalidate
+            th:action="${id == null} ? @{/app/tecnicos} : @{/app/tecnicos/{id}(id=${id})}"
+            th:method="${id == null} ? 'post' : 'put'">
+        <div class="form-error" role="alert" th:if="${#fields.hasGlobalErrors()}" th:text="${#fields.globalErrors()[0]}">Erro</div>
+        <div class="form-error" role="alert" th:if="${#fields.hasErrors('*') and !#fields.hasGlobalErrors()}">Corrija os campos destacados.</div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('nome')} ? invalid">
+          <label for="nome">Nome</label>
+          <input th:field="*{nome}" maxlength="100" placeholder="Ex.: João Pereira" autocomplete="name">
+          <span class="err" th:errors="*{nome}"></span>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('email')} ? invalid">
+          <label for="email">E-mail</label>
+          <input th:field="*{email}" type="email" maxlength="120" placeholder="joao@suporte.com.br" autocomplete="email">
+          <span class="err" th:errors="*{email}"></span>
+        </div>
+        <fieldset class="field" th:classappend="${#fields.hasErrors('perfil')} ? invalid">
+          <legend>Perfil</legend>
+          <div class="seg" style="--n:2">
+            <th:block th:each="p : ${perfis}">
+              <input type="radio" th:field="*{perfil}" th:value="${p}">
+              <label th:for="${#ids.prev('perfil')}"><svg th:replace="${p.name() == 'ADMIN'} ? ~{fragments/icones :: lock} : ~{fragments/icones :: wrench}"></svg> <th:block th:text="#{${'perfil.' + p}}">Técnico</th:block></label>
+            </th:block>
+          </div>
+          <span class="err" th:errors="*{perfil}"></span>
+        </fieldset>
+
+        <div class="form-actions">
+          <a class="btn ghost" th:href="@{/app/tecnicos}">Cancelar</a>
+          <button type="submit" class="btn primary" th:text="${id == null} ? 'Cadastrar técnico' : 'Salvar alterações'">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>

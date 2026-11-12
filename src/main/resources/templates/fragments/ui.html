@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<span th:fragment="status(s)" class="status" th:classappend="${s}" th:text="#{${'status.' + s}}">Aberto</span>
+
+<span th:fragment="prio(p)" class="prio" th:classappend="${p}">
+  <span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span><th:block th:text="#{${'prioridade.' + p}}">Média</th:block>
+</span>
+
+<span th:fragment="avatar(nome)" class="avatar" aria-hidden="true" th:text="${#strings.toUpperCase(#strings.substring(nome, 0, 1))}">A</span>
+
+<th:block th:fragment="tecnico(t)">
+  <span th:if="${t != null}" class="person"><span th:replace="~{fragments/ui :: avatar(${t.nome})}"></span><span th:text="${t.nome}">Nome</span></span>
+  <span th:if="${t == null}" class="unassigned">Sem técnico</span>
+</th:block>
+
+<!-- Botão de excluir: formulário DELETE (via HiddenHttpMethodFilter) com confirmação -->
+<form th:fragment="excluir(acao, titulo, texto)" class="inline" th:action="${acao}" th:method="delete"
+      data-confirm th:data-titulo="${titulo}" th:data-texto="${texto}">
+  <button type="submit" class="icon-btn danger" aria-label="Excluir" title="Excluir"><svg th:replace="~{fragments/icones :: trash}"></svg></button>
+</form>
+
+<div th:fragment="tabelaChamados(lista, mostrarCliente)" class="table-wrap">
+  <table>
+    <thead><tr>
+      <th>#</th><th>Chamado</th><th class="hide-sm" th:if="${mostrarCliente}">Cliente</th><th class="hide-sm hide-md">Técnico</th>
+      <th>Prioridade</th><th>Status</th><th class="hide-sm hide-md">Aberto em</th><th><span class="sr-only">Ações</span></th>
+    </tr></thead>
+    <tbody>
+      <tr th:each="c : ${lista}" class="clickable" th:data-href="@{/app/chamados/{id}(id=${c.id})}">
+        <td class="id" th:text="|#${c.id}|">#1</td>
+        <td><a class="cell-title row-link" th:href="@{/app/chamados/{id}(id=${c.id})}" th:text="${c.titulo}">Título</a><div class="cell-sub" th:text="${c.categoria.nome}">Categoria</div></td>
+        <td class="hide-sm" th:if="${mostrarCliente}" th:text="${c.cliente.nome}">Cliente</td>
+        <td class="hide-sm hide-md"><th:block th:replace="~{fragments/ui :: tecnico(${c.tecnico})}"></th:block></td>
+        <td><span th:replace="~{fragments/ui :: prio(${c.prioridade})}"></span></td>
+        <td><span th:replace="~{fragments/ui :: status(${c.status})}"></span></td>
+        <td class="hide-sm hide-md muted nowrap" th:text="${#temporals.format(c.dataAbertura, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</td>
+        <td class="actions">
+          <a class="icon-btn" th:href="@{/app/chamados/{id}/editar(id=${c.id})}" aria-label="Editar" title="Editar" th:if="${c.status.name() != 'FECHADO'}"><svg th:replace="~{fragments/icones :: edit}"></svg></a>
+          <form th:replace="~{fragments/ui :: excluir(@{/app/chamados/{id}(id=${c.id})}, |Excluir chamado #${c.id}?|, 'O chamado será removido permanentemente. Chamados com comentários não podem ser excluídos.')}"></form>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

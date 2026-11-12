@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${id == null} ? 'Novo cliente' : 'Editar cliente')}"></head>
+<body>
+<div class="shell">
+  <aside th:replace="~{fragments/layout :: sidebar('clientes')}"></aside>
+  <header th:replace="~{fragments/layout :: topbar}"></header>
+  <main class="main" id="conteudo">
+    <div class="page form-page">
+      <a class="crumb" th:href="@{/app/clientes}"><svg th:replace="~{fragments/icones :: back}"></svg> Clientes</a>
+      <h1 class="form-title" th:text="${id == null} ? 'Novo cliente' : 'Editar cliente'">Novo cliente</h1>
+
+      <form class="panel form-card" th:object="${cliente}" novalidate
+            th:action="${id == null} ? @{/app/clientes} : @{/app/clientes/{id}(id=${id})}"
+            th:method="${id == null} ? 'post' : 'put'">
+        <div class="form-error" role="alert" th:if="${#fields.hasGlobalErrors()}" th:text="${#fields.globalErrors()[0]}">Erro</div>
+        <div class="form-error" role="alert" th:if="${#fields.hasErrors('*') and !#fields.hasGlobalErrors()}">Corrija os campos destacados.</div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('nome')} ? invalid">
+          <label for="nome">Nome</label>
+          <input th:field="*{nome}" maxlength="100" placeholder="Ex.: Maria Oliveira" autocomplete="name">
+          <span class="err" th:errors="*{nome}"></span>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('email')} ? invalid">
+          <label for="email">E-mail</label>
+          <input th:field="*{email}" type="email" placeholder="maria@empresa.com.br" autocomplete="email">
+          <span class="err" th:errors="*{email}"></span>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('telefone')} ? invalid">
+          <label for="telefone">Telefone <span class="opt">(opcional)</span></label>
+          <input th:field="*{telefone}" type="tel" maxlength="20" placeholder="(11) 91234-5678" data-mask="telefone">
+          <span class="err" th:errors="*{telefone}"></span>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn ghost" th:href="${id == null} ? @{/app/clientes} : @{/app/clientes/{id}(id=${id})}">Cancelar</a>
+          <button type="submit" class="btn primary" th:text="${id == null} ? 'Cadastrar cliente' : 'Salvar alterações'">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/layout :: rodape}"></th:block>
+</body>
+</html>
